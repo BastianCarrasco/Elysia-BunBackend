@@ -35,3 +35,5 @@ console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
 );
 console.log(`📄 Swagger docs available at http://${app.server?.hostname}:${app.server?.port}/docs`);
+
+//dadwad
