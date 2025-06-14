@@ -1,0 +1,20 @@
+# Usa una imagen base con Bun ya instalado
+FROM oven/bun:1.1.13
+
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copia todos los archivos a /app
+COPY . .
+
+# Instala las dependencias
+RUN bun install
+
+# Compila el proyecto (opcional si ya estás en modo dev)
+RUN bun run build
+
+# Expone el puerto (usa 3000 o el que uses en tu app)
+EXPOSE 3000
+
+# Comando de inicio
+CMD ["bun", "run", "start"]
