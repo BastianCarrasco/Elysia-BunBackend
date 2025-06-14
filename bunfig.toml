@@ -1,0 +1,3 @@
+[dev]
+watch = true
+preload = ["./src/lib/config.ts"]
