@@ -21,6 +21,7 @@ if (config.ENVIRONMENT === "development") {
         tags: [
           { name: "Health", description: "Health checks del sistema" },
           { name: "Académicos", description: "Gestión de datos de académicos" },
+          
         ],
         components: {
           schemas: {
