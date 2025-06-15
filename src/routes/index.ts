@@ -16,6 +16,7 @@ import { proyectoRoutes } from "./proyecto/CRUD";
 import { tematicaRoutes } from "./tematica/CRUD";
 import { tipoApoyoRoutes } from "./tipo_apoyo/CRUD";
 import { tipoConvoRoutes } from "./tipo_convo/CRUD";
+import { proyectosDataRoutes } from "./funciones n/CRUD";
 
 export const routes = new Elysia()
   .use(academicosRoutes)
@@ -34,5 +35,5 @@ export const routes = new Elysia()
   .use(tematicaRoutes)
   .use(tipoApoyoRoutes)
   .use(tipoConvoRoutes)
-
-  .use(estatusRoutes);
+  .use(estatusRoutes)
+  .use(proyectosDataRoutes);
