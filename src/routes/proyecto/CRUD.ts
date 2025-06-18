@@ -2,32 +2,10 @@ import { Elysia, t } from "elysia";
 import { ProyectoModel, ProyectoSchema } from "./model";
 
 export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
-  // CREATE - POST /proyectos
-  .post(
-    "/",
-    async ({ body }) => {
-      try {
-        const newProyecto = await ProyectoModel.create(body);
-        return newProyecto;
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(`Error creating proyecto: ${error.message}`);
-        }
-        throw new Error("Unknown error occurred while creating proyecto");
-      }
-    },
-    {
-      body: t.Omit(ProyectoSchema, ["id_proyecto"]),
-      detail: {
-        tags: ["Proyectos"],
-        description: "Create a new proyecto",
-      },
-    }
-  )
 
   // READ ALL - GET /proyectos
   .get(
-    "/",
+    "/crudo",
     async () => {
       try {
         return await ProyectoModel.getAll();
@@ -39,9 +17,10 @@ export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
       }
     },
     {
+      response: t.Array(ProyectoSchema),
       detail: {
         tags: ["Proyectos"],
-        description: "Get all proyectos",
+        description: "Get all proyectos with related data",
       },
     }
   )
@@ -67,9 +46,10 @@ export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
       params: t.Object({
         id: t.Numeric(),
       }),
+      response: ProyectoSchema,
       detail: {
         tags: ["Proyectos"],
-        description: "Get a specific proyecto by ID",
+        description: "Get a specific proyecto with complete related data by ID",
       },
     }
   )
@@ -96,21 +76,20 @@ export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
       params: t.Object({
         statusId: t.Numeric(),
       }),
+      response: t.Array(ProyectoSchema),
       detail: {
         tags: ["Proyectos"],
-        description: "Get proyectos by status ID",
+        description: "Get proyectos filtered by status ID",
       },
     }
   )
 
-  // READ BY CONVOCATORIA - GET /proyectos/convocatoria/:convocatoriaId
+  // READ BY CONVOCATORIA NAME - GET /proyectos/convocatoria/:nombre
   .get(
-    "/convocatoria/:convocatoriaId",
-    async ({ params: { convocatoriaId } }) => {
+    "/convocatoria/:nombre",
+    async ({ params: { nombre } }) => {
       try {
-        const proyectos = await ProyectoModel.getByConvocatoria(
-          Number(convocatoriaId)
-        );
+        const proyectos = await ProyectoModel.getByConvocatoria(nombre);
         return proyectos;
       } catch (error) {
         if (error instanceof Error) {
@@ -125,11 +104,12 @@ export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
     },
     {
       params: t.Object({
-        convocatoriaId: t.Numeric(),
+        nombre: t.String(),
       }),
+      response: t.Array(ProyectoSchema),
       detail: {
         tags: ["Proyectos"],
-        description: "Get proyectos by convocatoria ID",
+        description: "Get proyectos filtered by convocatoria name",
       },
     }
   )
@@ -151,6 +131,7 @@ export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
       query: t.Object({
         name: t.String(),
       }),
+      response: t.Array(ProyectoSchema),
       detail: {
         tags: ["Proyectos"],
         description: "Search proyectos by name",
@@ -180,9 +161,58 @@ export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
         id: t.Numeric(),
       }),
       body: t.Partial(t.Omit(ProyectoSchema, ["id_proyecto"])),
+      response: ProyectoSchema,
       detail: {
         tags: ["Proyectos"],
-        description: "Update a proyecto by ID",
+        description: "Update an existing proyecto",
+      },
+    }
+  )
+
+  // CREATE - POST /proyectos
+  .post(
+    "/",
+    async ({ body }) => {
+      try {
+        const newProyecto = await ProyectoModel.create(body);
+        return newProyecto;
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(`Error creating proyecto: ${error.message}`);
+        }
+        throw new Error("Unknown error occurred while creating proyecto");
+      }
+    },
+    {
+      body: t.Omit(ProyectoSchema, ["id_proyecto"]),
+      response: ProyectoSchema,
+      detail: {
+        tags: ["Proyectos"],
+        description: "Create a new proyecto",
+      },
+    }
+  )
+
+  // CREATE - POST /proyectos
+  .post(
+    "/",
+    async ({ body }) => {
+      try {
+        const newProyecto = await ProyectoModel.create(body);
+        return newProyecto;
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(`Error creating proyecto: ${error.message}`);
+        }
+        throw new Error("Unknown error occurred while creating proyecto");
+      }
+    },
+    {
+      body: t.Omit(ProyectoSchema, ["id_proyecto"]),
+      response: ProyectoSchema,
+      detail: {
+        tags: ["Proyectos"],
+        description: "Create a new proyecto",
       },
     }
   )
@@ -207,6 +237,9 @@ export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
     {
       params: t.Object({
         id: t.Numeric(),
+      }),
+      response: t.Object({
+        message: t.String(),
       }),
       detail: {
         tags: ["Proyectos"],

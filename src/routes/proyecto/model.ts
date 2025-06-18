@@ -1,36 +1,42 @@
 import { t } from "elysia";
 import { pool } from "../../lib/db";
 
-// Tipo TypeScript
+// Interface TypeScript
 export interface Proyecto {
   id_proyecto: number;
-  nombre?: string | null;
+  nombre: string; // No puede ser nulo
   monto?: number | null;
   fecha_postulacion?: Date | string | null;
   comentarios?: string | null;
   unidad?: number | null;
-  id_convocatoria?: number | null;
   id_tematica?: number | null;
-  id_apoyo?: number | null;
   id_estatus?: number | null;
   id_kth?: number | null;
+  convocatoria?: string | null;
+  tipo_convocatoria?: number | null;
+  inst_conv?: number | null;
+  detalle_apoyo?: string | null;
+  apoyo?: number | null;
 }
 
 // Esquema de validación Elysia
 export const ProyectoSchema = t.Object({
   id_proyecto: t.Number(),
-  nombre: t.Optional(t.Union([t.String(), t.Null()])),
+  nombre: t.String(), // Requerido
   monto: t.Optional(t.Union([t.Number(), t.Null()])),
   fecha_postulacion: t.Optional(
     t.Union([t.Date(), t.String({ format: "date" }), t.Null()])
   ),
   comentarios: t.Optional(t.Union([t.String(), t.Null()])),
   unidad: t.Optional(t.Union([t.Number(), t.Null()])),
-  id_convocatoria: t.Optional(t.Union([t.Number(), t.Null()])),
   id_tematica: t.Optional(t.Union([t.Number(), t.Null()])),
-  id_apoyo: t.Optional(t.Union([t.Number(), t.Null()])),
   id_estatus: t.Optional(t.Union([t.Number(), t.Null()])),
   id_kth: t.Optional(t.Union([t.Number(), t.Null()])),
+  convocatoria: t.Optional(t.Union([t.String(), t.Null()])),
+  tipo_convocatoria: t.Optional(t.Union([t.Number(), t.Null()])),
+  inst_conv: t.Optional(t.Union([t.Number(), t.Null()])),
+  detalle_apoyo: t.Optional(t.Union([t.String(), t.Null()])),
+  apoyo: t.Optional(t.Union([t.Number(), t.Null()])),
 });
 
 // Operaciones CRUD
@@ -40,9 +46,10 @@ export const ProyectoModel = {
     const { rows } = await pool.query(
       `INSERT INTO proyecto (
         nombre, monto, fecha_postulacion, comentarios, unidad,
-        id_convocatoria, id_tematica, id_apoyo, id_estatus, id_kth
+        id_tematica, id_estatus, id_kth, convocatoria, 
+        tipo_convocatoria, inst_conv, detalle_apoyo, apoyo
       ) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *`,
       [
         proyectoData.nombre,
@@ -50,11 +57,14 @@ export const ProyectoModel = {
         proyectoData.fecha_postulacion,
         proyectoData.comentarios,
         proyectoData.unidad,
-        proyectoData.id_convocatoria,
         proyectoData.id_tematica,
-        proyectoData.id_apoyo,
         proyectoData.id_estatus,
         proyectoData.id_kth,
+        proyectoData.convocatoria,
+        proyectoData.tipo_convocatoria,
+        proyectoData.inst_conv,
+        proyectoData.detalle_apoyo,
+        proyectoData.apoyo,
       ]
     );
     return rows[0];
@@ -87,10 +97,10 @@ export const ProyectoModel = {
   },
 
   // READ by Convocatoria
-  async getByConvocatoria(convocatoriaId: number): Promise<Proyecto[]> {
+  async getByConvocatoria(convocatoriaNombre: string): Promise<Proyecto[]> {
     const { rows } = await pool.query(
-      "SELECT * FROM proyecto WHERE id_convocatoria = $1",
-      [convocatoriaId]
+      "SELECT * FROM proyecto WHERE convocatoria ILIKE $1",
+      [`%${convocatoriaNombre}%`]
     );
     return rows;
   },
@@ -100,43 +110,11 @@ export const ProyectoModel = {
     id: number,
     proyectoData: Partial<Omit<Proyecto, "id_proyecto">>
   ): Promise<Proyecto | null> {
-    const updateData = {
-      nombre:
-        proyectoData.nombre === undefined ? undefined : proyectoData.nombre,
-      monto: proyectoData.monto === undefined ? undefined : proyectoData.monto,
-      fecha_postulacion:
-        proyectoData.fecha_postulacion === undefined
-          ? undefined
-          : proyectoData.fecha_postulacion,
-      comentarios:
-        proyectoData.comentarios === undefined
-          ? undefined
-          : proyectoData.comentarios,
-      unidad:
-        proyectoData.unidad === undefined ? undefined : proyectoData.unidad,
-      id_convocatoria:
-        proyectoData.id_convocatoria === undefined
-          ? undefined
-          : proyectoData.id_convocatoria,
-      id_tematica:
-        proyectoData.id_tematica === undefined
-          ? undefined
-          : proyectoData.id_tematica,
-      id_apoyo:
-        proyectoData.id_apoyo === undefined ? undefined : proyectoData.id_apoyo,
-      id_estatus:
-        proyectoData.id_estatus === undefined
-          ? undefined
-          : proyectoData.id_estatus,
-      id_kth:
-        proyectoData.id_kth === undefined ? undefined : proyectoData.id_kth,
-    };
-
     const fields = [];
     const values = [];
     let paramIndex = 1;
 
-    for (const [key, value] of Object.entries(updateData)) {
+    for (const [key, value] of Object.entries(proyectoData)) {
       if (value !== undefined) {
         fields.push(`${key} = $${paramIndex}`);
         values.push(value);
@@ -171,8 +149,7 @@ export const ProyectoModel = {
   // SEARCH by Name
   async searchByName(name: string): Promise<Proyecto[]> {
     const { rows } = await pool.query(
-      `SELECT * FROM proyecto 
-       WHERE nombre ILIKE $1`,
+      "SELECT * FROM proyecto WHERE nombre ILIKE $1",
       [`%${name}%`]
     );
     return rows;

@@ -21,7 +21,7 @@ import { proyectosDataRoutes } from "./funciones n/CRUD";
 export const routes = new Elysia()
   .use(academicosRoutes)
   .use(apoyoRoutes)
-  .use(convocatoriaRoutes)
+  // .use(convocatoriaRoutes)
   .use(cuestionarioRoutes)
   .use(healthRoutes)
   .use(respuestaCuestionarioRoutes)
