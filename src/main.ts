@@ -6,11 +6,11 @@ import { createConfig } from "./lib/config";
 
 const app = new Elysia();
 const config = createConfig(app);
-
+const corsOrigin = process.env.CORS_ORIGIN || "*";
 // Configuración CORS completa y corregida
 app.use(
   cors({
-    origin: true, // Permite cualquier origen dinámicamente
+    origin: corsOrigin, // Permite cualquier origen dinámicamente
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
     exposeHeaders: ["Content-Length", "X-Request-ID"], // Corregido: exposeHeaders en lugar de exposedHeaders
@@ -22,7 +22,7 @@ app.use(
 // Manejo explícito de solicitudes OPTIONS
 app.options("*", ({ set }) => {
   set.headers = {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept",
     "Access-Control-Max-Age": "86400",
