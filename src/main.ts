@@ -8,17 +8,17 @@ import { createConfig } from "./lib/config";
 const app = new Elysia();
 const config = createConfig(app);
 
-// Configura CORS antes de cualquier middleware
+// Configura CORS primero, antes que Swagger y las rutas
 app.use(
   cors({
-    origin: "*", // Asegura que permite cualquier origen
+    origin: "*", // Permite cualquier origen
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
-    credentials: false, // Si no estás usando cookies o auth headers, déjalo en false
+    credentials: false, // No usas cookies o auth headers
   })
 );
 
-// Swagger solo en desarrollo
+// Swagger solo en desarrollo, después de CORS
 if (config.ENVIRONMENT === "development") {
   app.use(
     swagger({
@@ -63,7 +63,7 @@ if (config.ENVIRONMENT === "development") {
   );
 }
 
-// Registrar rutas
+// Registrar rutas después de CORS y Swagger
 app.use(routes).listen(config.PORT);
 
 console.log(`🦊 Elysia running at ${app.server?.hostname}:${app.server?.port}`);
