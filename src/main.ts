@@ -1,35 +1,24 @@
 import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
-import { cors } from "@elysiajs/cors";
+import { cors } from "@elysiajs/cors"; // Correctly import the Elysia CORS plugin
 import { routes } from "./routes";
 import { createConfig } from "./lib/config";
 
+// Initial configuration
 const app = new Elysia();
 const config = createConfig(app);
-const corsOrigin = process.env.CORS_ORIGIN || "*";
-// Configuración CORS completa y corregida
+
+// Configure CORS first, before Swagger and routes
 app.use(
   cors({
-    origin: corsOrigin, // Permite cualquier origen dinámicamente
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-    exposeHeaders: ["Content-Length", "X-Request-ID"], // Corregido: exposeHeaders en lugar de exposedHeaders
-    credentials: false, // Importante mantener en false cuando se usa origin *
-    maxAge: 86400, // Preflight cache por 24 horas
+    origin: "*", // Allow any origin
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"], // Consider adding "Authorization" if you use it
+    credentials: true, // Consider this if you use cookies or authorization headers
   })
 );
 
-// Manejo explícito de solicitudes OPTIONS
-app.options("*", ({ set }) => {
-  set.headers = {
-    "Access-Control-Allow-Origin": corsOrigin,
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept",
-    "Access-Control-Max-Age": "86400",
-  };
-});
-
-// Configuración de Swagger solo en desarrollo
+// Swagger only in development, after CORS
 if (config.ENVIRONMENT === "development") {
   app.use(
     swagger({
@@ -74,21 +63,10 @@ if (config.ENVIRONMENT === "development") {
   );
 }
 
-// Middleware final para asegurar headers CORS en todas las respuestas
-app.on("afterHandle", ({ set }) => {
-  set.headers["Access-Control-Allow-Origin"] = "*";
-  set.headers["Vary"] = "Origin";
-});
+// Register routes after CORS and Swagger
+app.use(routes).listen(config.PORT);
 
-// Registrar rutas principales
-app.use(routes);
-
-// Iniciar servidor
-app.listen(config.PORT);
-
+console.log(`🦊 Elysia running at ${app.server?.hostname}:${app.server?.port}`);
 console.log(
-  `🦊 Servidor Elysia ejecutándose en ${app.server?.hostname}:${app.server?.port}`
-);
-console.log(
-  `📚 Documentación Swagger: http://${app.server?.hostname}:${app.server?.port}/docs`
+  `📚 Swagger docs: http://${app.server?.hostname}:${app.server?.port}/docs`
 );
