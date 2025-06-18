@@ -4,7 +4,7 @@ import { ProyectoModel, ProyectoSchema } from "./model_proyecto";
 export const proyectosDataRoutes = new Elysia({ prefix: "/proyectos" })
   // GET All Proyectos with complete data
   .get(
-    "/",
+    "/data",
     async () => {
       try {
         const proyectos = await ProyectoModel.getAll();

@@ -3,7 +3,7 @@ import { healthRoutes } from "./health";
 import { academicosRoutes } from "./academicos/CRUD";
 import { unidadesRoutes } from "./ua/CRUD";
 import { apoyoRoutes } from "./apoyo/CRUD";
-import { convocatoriaRoutes } from "./convocatoria/CRUD";
+
 import { cuestionarioRoutes } from "./cuestionario/CRUD";
 import { respuestaCuestionarioRoutes } from "./respuestas_cuestionario/CRUD";
 import { tagRoutes } from "./apoyo/detalles/CRUD";
@@ -21,7 +21,7 @@ import { proyectosDataRoutes } from "./funciones n/CRUD";
 export const routes = new Elysia()
   .use(academicosRoutes)
   .use(apoyoRoutes)
-  // .use(convocatoriaRoutes)
+
   .use(cuestionarioRoutes)
   .use(healthRoutes)
   .use(respuestaCuestionarioRoutes)

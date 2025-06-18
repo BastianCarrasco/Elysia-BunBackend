@@ -193,30 +193,6 @@ export const proyectoRoutes = new Elysia({ prefix: "/proyectos" })
     }
   )
 
-  // CREATE - POST /proyectos
-  .post(
-    "/",
-    async ({ body }) => {
-      try {
-        const newProyecto = await ProyectoModel.create(body);
-        return newProyecto;
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(`Error creating proyecto: ${error.message}`);
-        }
-        throw new Error("Unknown error occurred while creating proyecto");
-      }
-    },
-    {
-      body: t.Omit(ProyectoSchema, ["id_proyecto"]),
-      response: ProyectoSchema,
-      detail: {
-        tags: ["Proyectos"],
-        description: "Create a new proyecto",
-      },
-    }
-  )
-
   // DELETE - DELETE /proyectos/:id
   .delete(
     "/:id",

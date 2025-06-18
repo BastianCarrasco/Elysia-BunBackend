@@ -9,14 +9,7 @@ const app = new Elysia();
 const config = createConfig(app);
 
 // Configure CORS first, before Swagger and routes
-app.use(
-  cors({
-    origin: "*", // Allow any origin
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"], // Consider adding "Authorization" if you use it
-    credentials: true, // Consider this if you use cookies or authorization headers
-  })
-);
+app.use(cors());
 
 // Swagger only in development, after CORS
 if (config.ENVIRONMENT === "development") {
