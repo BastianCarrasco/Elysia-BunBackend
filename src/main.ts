@@ -8,13 +8,12 @@ import { createConfig } from "./lib/config";
 const app = new Elysia();
 const config = createConfig(app);
 
-// Configura CORS antes de cualquier middleware
 app.use(
   cors({
-    origin: true, // Permite todos los orígenes (en producción especifica los dominios)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Métodos permitidos
-    allowedHeaders: ["Content-Type"], // Cabeceras permitidas
-    credentials: true, // Si necesitas enviar cookies o auth headers
+    origin: true, // Permite TODOS los orígenes
+    methods: "*", // Permite TODOS los métodos HTTP
+    allowedHeaders: "*", // Permite TODAS las cabeceras
+    credentials: true, // Permite credenciales
   })
 );
 
