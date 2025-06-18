@@ -1,11 +1,22 @@
 import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
+import { cors } from "@elysiajs/cors"; // Importa el módulo CORS
 import { routes } from "./routes";
 import { createConfig } from "./lib/config";
 
 // Configuración inicial
 const app = new Elysia();
 const config = createConfig(app);
+
+// Configura CORS antes de cualquier middleware
+app.use(
+  cors({
+    origin: true, // Permite todos los orígenes (en producción especifica los dominios)
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Métodos permitidos
+    allowedHeaders: ["Content-Type"], // Cabeceras permitidas
+    credentials: true, // Si necesitas enviar cookies o auth headers
+  })
+);
 
 // Swagger solo en desarrollo
 if (config.ENVIRONMENT === "development") {
@@ -21,7 +32,6 @@ if (config.ENVIRONMENT === "development") {
         tags: [
           { name: "Health", description: "Health checks del sistema" },
           { name: "Académicos", description: "Gestión de datos de académicos" },
-          
         ],
         components: {
           schemas: {
