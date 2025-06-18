@@ -28,7 +28,7 @@ export const ProyectoSchema = t.Object({
   comentarios: t.Optional(t.Union([t.String(), t.Null()])),
   tematica: t.Optional(t.Union([t.String(), t.Null()])),
   estatus: t.Optional(t.Union([t.String(), t.Null()])),
-  convocatoria: t.Optional(t.Union([t.String(), t.Null()])),
+  convocatoria: t.Optional(t.Union([t.String(), t.Null()])), // Corrección aquí
   nombre_convo: t.Optional(t.Union([t.String(), t.Null()])),
   institucion: t.Optional(t.Union([t.String(), t.Null()])),
   detalle_apoyo: t.Optional(t.Union([t.String(), t.Null()])),
@@ -154,7 +154,7 @@ export const ProyectoModel = {
   },
 
   // GET by Convocatoria
-  async getByConvocatoria(convocatoriaId: number): Promise<Proyecto[]> {
+  async getByConvocatoria(convocatoria: string): Promise<Proyecto[]> {
     const { rows } = await pool.query(
       `
       SELECT
@@ -179,7 +179,7 @@ export const ProyectoModel = {
         LEFT JOIN APOYO AS AP ON P.APOYO = AP.ID_APOYO
       WHERE P.CONVOCATORIA = $1
       `,
-      [convocatoriaId]
+      [convocatoria] // Corrección aquí
     );
     return rows;
   },
