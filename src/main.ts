@@ -13,8 +13,21 @@ app.use(
   cors({
     origin: "*", // Permite cualquier origen
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-    credentials: false, // No usas cookies o auth headers
+    allowedHeaders: ["Content-Type", "Authorization"], // Add Authorization if needed
+    credentials: true, // Allow credentials if needed (e.g., cookies)
+    preflight: (request) => {
+      // Optional:  Handle preflight requests (OPTIONS) manually.
+      // This is useful for more complex configurations.
+      return new Response(null, {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization", // include Authorization if needed.
+          "Access-Control-Allow-Credentials": "true", // if you're using credentials
+        },
+      });
+    },
   })
 );
 
