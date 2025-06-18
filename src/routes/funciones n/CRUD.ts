@@ -29,7 +29,7 @@ export const proyectosDataRoutes = new Elysia({ prefix: "/proyectos" })
       },
     }
   )
-  // GET Academicos por Proyecto
+  // GET Academicos por Proyecto (todos los proyectos con sus académicos)
   .get(
     "/academicosXProyecto",
     async () => {
@@ -53,37 +53,6 @@ export const proyectosDataRoutes = new Elysia({ prefix: "/proyectos" })
       detail: {
         tags: ["Proyectos"],
         description: "Get list of academic staff grouped by project",
-      },
-    }
-  )
-  // GET Academicos for a specific project
-  .get(
-    "/:id/academicos",
-    async ({ params }) => {
-      try {
-        const academicos = await AcademicosPorProyectoModel.getByProjectId(
-          params.id
-        );
-        return academicos;
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(
-            `Error getting académicos for project ${params.id}: ${error.message}`
-          );
-        }
-        throw new Error(
-          "Unknown error occurred while getting académicos for project"
-        );
-      }
-    },
-    {
-      params: t.Object({
-        id: t.Numeric(),
-      }),
-      response: AcademicosPorProyectoSchema,
-      detail: {
-        tags: ["Proyectos"],
-        description: "Get academic staff for a specific project",
       },
     }
   );
