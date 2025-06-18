@@ -10,7 +10,7 @@ export interface Proyecto {
   comentarios?: string | null;
   tematica?: string | null;
   estatus?: string | null;
-  convocatoria?: number | null;
+  convocatoria?: string | null;
   nombre_convo?: string | null;
   institucion?: string | null;
   detalle_apoyo?: string | null;
@@ -28,7 +28,7 @@ export const ProyectoSchema = t.Object({
   comentarios: t.Optional(t.Union([t.String(), t.Null()])),
   tematica: t.Optional(t.Union([t.String(), t.Null()])),
   estatus: t.Optional(t.Union([t.String(), t.Null()])),
-  convocatoria: t.Optional(t.Union([t.Number(), t.Null()])),
+  convocatoria: t.Optional(t.Union([t.String(), t.Null()])),
   nombre_convo: t.Optional(t.Union([t.String(), t.Null()])),
   institucion: t.Optional(t.Union([t.String(), t.Null()])),
   detalle_apoyo: t.Optional(t.Union([t.String(), t.Null()])),
