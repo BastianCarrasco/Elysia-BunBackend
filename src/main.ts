@@ -11,10 +11,11 @@ const config = createConfig(app);
 // Configure CORS first, before Swagger and routes
 app.use(
   cors({
-    origin: true, // En lugar de "*", especialmente si usas credentials
+    origin: true, // Esto permite dinámicamente el origen de la solicitud
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    // credentials: true, // Solo si realmente necesitas cookies/autorización
+    allowedHeaders: ["Content-Type"],
+    // Remueve credentials: true a menos que realmente lo necesites
+    exposedHeaders: ["Content-Length"], // Opcional: headers que quieres exponer
   })
 );
 
