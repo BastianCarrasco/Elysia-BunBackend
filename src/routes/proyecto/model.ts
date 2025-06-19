@@ -139,11 +139,31 @@ export const ProyectoModel = {
 
   // DELETE
   async delete(id: number): Promise<boolean> {
-    const { rowCount } = await pool.query(
-      "DELETE FROM proyecto WHERE id_proyecto = $1",
-      [id]
-    );
-    return rowCount != null && rowCount > 0;
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN"); // Iniciar transacción
+
+      // 1. Primero eliminar los registros relacionados en proyectoacademico
+      await client.query(
+        "DELETE FROM proyectoacademico WHERE id_proyecto = $1",
+        [id]
+      );
+
+      // 2. Luego eliminar el registro principal en proyecto
+      const { rowCount } = await client.query(
+        "DELETE FROM proyecto WHERE id_proyecto = $1",
+        [id]
+      );
+
+      await client.query("COMMIT"); // Confirmar transacción
+      return rowCount != null && rowCount > 0;
+    } catch (error) {
+      await client.query("ROLLBACK"); // Revertir en caso de error
+      throw error;
+    } finally {
+      client.release(); // Liberar el cliente de vuelta al pool
+    }
   },
 
   // SEARCH by Name
