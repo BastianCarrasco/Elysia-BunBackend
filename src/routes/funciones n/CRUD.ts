@@ -6,7 +6,7 @@ import {
   AcademicosPorProyectoSchema,
 } from "./model_academicos";
 
-export const proyectosDataRoutes = new Elysia({ prefix: "/proyectos" })
+export const funcionesDataRoutes = new Elysia({ prefix: "/funciones" })
   // GET All Proyectos with complete data
   .get(
     "/data",
@@ -24,8 +24,9 @@ export const proyectosDataRoutes = new Elysia({ prefix: "/proyectos" })
     {
       response: t.Array(ProyectoSchema),
       detail: {
-        tags: ["Proyectos"],
-        description: "Get all proyectos with complete related data",
+        tags: ["Funciones"],
+        description:
+          "Obtiene todos los proyectos con datos ya intersectados con sus tablas relacionadas",
       },
     }
   )
@@ -51,7 +52,7 @@ export const proyectosDataRoutes = new Elysia({ prefix: "/proyectos" })
     {
       response: t.Array(AcademicosPorProyectoSchema),
       detail: {
-        tags: ["Proyectos"],
+        tags: ["Funciones"],
         description: "Get list of academic staff grouped by project",
       },
     }
