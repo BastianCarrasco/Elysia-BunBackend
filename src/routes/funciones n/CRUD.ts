@@ -6,6 +6,12 @@ import {
   AcademicosPorProyectoSchema,
 } from "./model_academicos";
 
+import {
+  ProyectoConAcademicos,
+  ProyectoAcademicoSchema,
+  ModelAcademicoXProyecto, // Import the new model
+} from "./model_academicoXproyecto";
+
 export const funcionesDataRoutes = new Elysia({ prefix: "/funciones" })
   // GET All Proyectos with complete data
   .get(
@@ -54,6 +60,33 @@ export const funcionesDataRoutes = new Elysia({ prefix: "/funciones" })
       detail: {
         tags: ["Funciones"],
         description: "Get list of academic staff grouped by project",
+      },
+    }
+  )
+  // POST to create a new project with associated academics
+  .post(
+    "/crearProyectoConAcademicos",
+    async ({ body }) => {
+      try {
+        const newProject = body as ProyectoConAcademicos;
+        await ModelAcademicoXProyecto.crearProyectoConAcademicos(newProject);
+        return { message: "Proyecto creado exitosamente con sus académicos." };
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(
+            `Error creating project with academics: ${error.message}`
+          );
+        }
+        throw new Error(
+          "Unknown error occurred while creating project with academics"
+        );
+      }
+    },
+    {
+      body: ProyectoAcademicoSchema,
+      detail: {
+        tags: ["Funciones"],
+        description: "Crea un nuevo proyecto y asocia académicos a él.",
       },
     }
   );
