@@ -33,6 +33,13 @@ export const funcionesDataRoutes = new Elysia({ prefix: "/funciones" })
         tags: ["Funciones"],
         description:
           "Obtiene todos los proyectos con datos ya intersectados con sus tablas relacionadas",
+        // === INFORMACIÓN DE LA TABLA ===
+        table: {
+          schema: ProyectoSchema, // Asocia el esquema de respuesta a la tabla
+          name: "Proyectos Detallados", // Nombre de la tabla para la documentación
+          description: "Listado completo de proyectos con sus relaciones", // Descripción de la tabla
+        },
+        // ==============================
       },
     }
   )
@@ -60,10 +67,17 @@ export const funcionesDataRoutes = new Elysia({ prefix: "/funciones" })
       detail: {
         tags: ["Funciones"],
         description: "Get list of academic staff grouped by project",
+        // === INFORMACIÓN DE LA TABLA ===
+        table: {
+          schema: AcademicosPorProyectoSchema, // Asocia el esquema de respuesta a la tabla
+          name: "Académicos por Proyecto", // Nombre de la tabla para la documentación
+          description: "Agrupación de académicos por cada proyecto", // Descripción de la tabla
+        },
+        // ==============================
       },
     }
   )
-  // POST to create a new project with associated academicsdadwa
+  // POST to create a new project with associated academics
   .post(
     "/crearProyectoConAcademicos",
     async ({ body }) => {
@@ -87,6 +101,14 @@ export const funcionesDataRoutes = new Elysia({ prefix: "/funciones" })
       detail: {
         tags: ["Funciones"],
         description: "Crea un nuevo proyecto y asocia académicos a él.",
+        // === INFORMACIÓN DE LA TABLA ===
+        table: {
+          schema: ProyectoAcademicoSchema, // Asocia el esquema del cuerpo de la solicitud (input) a la tabla
+          name: "Crear Proyecto con Académicos", // Nombre para la documentación (puede ser similar al endpoint)
+          description:
+            "Datos requeridos para crear un nuevo proyecto y asociar académicos", // Descripción de la tabla
+        },
+        // ==============================
       },
     }
   );
