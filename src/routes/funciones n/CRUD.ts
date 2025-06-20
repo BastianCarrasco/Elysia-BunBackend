@@ -63,7 +63,7 @@ export const funcionesDataRoutes = new Elysia({ prefix: "/funciones" })
       },
     }
   )
-  // POST to create a new project with associated academics
+  // POST to create a new project with associated academicsdadwa
   .post(
     "/crearProyectoConAcademicos",
     async ({ body }) => {
