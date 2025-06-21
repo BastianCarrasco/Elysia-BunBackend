@@ -28,9 +28,7 @@ export const TematicaModel = {
 
   // READ (All)
   async getAll(): Promise<Tematica[]> {
-    const { rows } = await pool.query(
-      "SELECT * FROM tematica ORDER BY id_tematica"
-    );
+    const { rows } = await pool.query("SELECT * FROM tematica ORDER BY nombre");
     return rows;
   },
 

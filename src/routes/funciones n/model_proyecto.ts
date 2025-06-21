@@ -64,7 +64,7 @@ export const ProyectoModel = {
         LEFT JOIN INST_CONVO AS IC ON P.INST_CONV = IC.ID
         LEFT JOIN APOYO AS AP ON P.APOYO = AP.ID_APOYO
         LEFT JOIN UNIDADACADEMICA AS UA ON P.unidad = UA.id_unidad
-      ORDER BY P.ID_PROYECTO
+      ORDER BY P.NOMBRE
     `);
     return rows;
   },

@@ -28,7 +28,9 @@ export const TipoConvoModel = {
 
   // READ (All)
   async getAll(): Promise<TipoConvo[]> {
-    const { rows } = await pool.query("SELECT * FROM tipo_convo ORDER BY id");
+    const { rows } = await pool.query(
+      "SELECT * FROM tipo_convo ORDER BY nombre"
+    );
     return rows;
   },
 

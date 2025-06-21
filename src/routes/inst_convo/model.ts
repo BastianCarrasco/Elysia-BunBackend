@@ -1,5 +1,5 @@
-import { t } from 'elysia';
-import { pool } from '../../lib/db';
+import { t } from "elysia";
+import { pool } from "../../lib/db";
 
 // Tipo TypeScript
 export interface InstConvo {
@@ -16,7 +16,7 @@ export const InstConvoSchema = t.Object({
 // Operaciones CRUD
 export const InstConvoModel = {
   // CREATE
-  async create(instConvoData: Omit<InstConvo, 'id'>): Promise<InstConvo> {
+  async create(instConvoData: Omit<InstConvo, "id">): Promise<InstConvo> {
     const { rows } = await pool.query(
       `INSERT INTO inst_convo (nombre) 
        VALUES ($1) 
@@ -28,14 +28,16 @@ export const InstConvoModel = {
 
   // READ (All)
   async getAll(): Promise<InstConvo[]> {
-    const { rows } = await pool.query('SELECT * FROM inst_convo ORDER BY id');
+    const { rows } = await pool.query(
+      "SELECT * FROM inst_convo ORDER BY nombre"
+    );
     return rows;
   },
 
   // READ (One)
   async getById(id: number): Promise<InstConvo | null> {
     const { rows } = await pool.query(
-      'SELECT * FROM inst_convo WHERE id = $1', 
+      "SELECT * FROM inst_convo WHERE id = $1",
       [id]
     );
     return rows[0] || null;
@@ -43,11 +45,12 @@ export const InstConvoModel = {
 
   // UPDATE
   async update(
-    id: number, 
-    instConvoData: Partial<Omit<InstConvo, 'id'>>
+    id: number,
+    instConvoData: Partial<Omit<InstConvo, "id">>
   ): Promise<InstConvo | null> {
     const updateData = {
-      nombre: instConvoData.nombre === undefined ? undefined : instConvoData.nombre
+      nombre:
+        instConvoData.nombre === undefined ? undefined : instConvoData.nombre,
     };
 
     const fields = [];
@@ -63,16 +66,16 @@ export const InstConvoModel = {
     }
 
     if (fields.length === 0) {
-      throw new Error('No hay campos para actualizar');
+      throw new Error("No hay campos para actualizar");
     }
 
     const query = `
       UPDATE inst_convo 
-      SET ${fields.join(', ')} 
+      SET ${fields.join(", ")} 
       WHERE id = $${paramIndex} 
       RETURNING *
     `;
-    
+
     const { rows } = await pool.query(query, [...values, id]);
     return rows[0] || null;
   },
@@ -80,7 +83,7 @@ export const InstConvoModel = {
   // DELETE
   async delete(id: number): Promise<boolean> {
     const { rowCount } = await pool.query(
-      'DELETE FROM inst_convo WHERE id = $1',
+      "DELETE FROM inst_convo WHERE id = $1",
       [id]
     );
     return rowCount != null && rowCount > 0;
@@ -94,5 +97,5 @@ export const InstConvoModel = {
       [`%${nombre}%`]
     );
     return rows;
-  }
+  },
 };

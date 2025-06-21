@@ -1,5 +1,5 @@
-import { t } from 'elysia';
-import { pool } from '../../lib/db';
+import { t } from "elysia";
+import { pool } from "../../lib/db";
 
 // Tipo TypeScript
 export interface Academico {
@@ -14,34 +14,41 @@ export interface Academico {
 export const AcademicoSchema = t.Object({
   id_academico: t.Number(),
   nombre: t.String(),
-  email: t.String({ format: 'email' }),
+  email: t.String({ format: "email" }),
   a_materno: t.String(),
-  a_paterno: t.String()
+  a_paterno: t.String(),
 });
 
 // Operaciones CRUD completas
 export const AcademicoModel = {
   // CREATE
-  async create(academico: Omit<Academico, 'id_academico'>): Promise<Academico> {
+  async create(academico: Omit<Academico, "id_academico">): Promise<Academico> {
     const { rows } = await pool.query(
       `INSERT INTO academico (nombre, email, a_materno, a_paterno) 
        VALUES ($1, $2, $3, $4) 
        RETURNING *`,
-      [academico.nombre, academico.email, academico.a_materno, academico.a_paterno]
+      [
+        academico.nombre,
+        academico.email,
+        academico.a_materno,
+        academico.a_paterno,
+      ]
     );
     return rows[0];
   },
 
   // READ (All)
   async getAll(): Promise<Academico[]> {
-    const { rows } = await pool.query('SELECT * FROM academico ORDER BY id_academico');
+    const { rows } = await pool.query(
+      "SELECT * FROM academico ORDER BY nombre"
+    );
     return rows;
   },
 
   // READ (One)
   async getById(id: number): Promise<Academico | null> {
     const { rows } = await pool.query(
-      'SELECT * FROM academico WHERE id_academico = $1', 
+      "SELECT * FROM academico WHERE id_academico = $1",
       [id]
     );
     return rows[0] || null;
@@ -49,8 +56,8 @@ export const AcademicoModel = {
 
   // UPDATE
   async update(
-    id: number, 
-    academico: Partial<Omit<Academico, 'id_academico'>>
+    id: number,
+    academico: Partial<Omit<Academico, "id_academico">>
   ): Promise<Academico | null> {
     const fields = [];
     const values = [];
@@ -65,16 +72,16 @@ export const AcademicoModel = {
     }
 
     if (fields.length === 0) {
-      throw new Error('No hay campos para actualizar');
+      throw new Error("No hay campos para actualizar");
     }
 
     const query = `
       UPDATE academico 
-      SET ${fields.join(', ')} 
+      SET ${fields.join(", ")} 
       WHERE id_academico = $${paramIndex} 
       RETURNING *
     `;
-    
+
     const { rows } = await pool.query(query, [...values, id]);
     return rows[0] || null;
   },
@@ -82,10 +89,10 @@ export const AcademicoModel = {
   // DELETE
   async delete(id: number): Promise<boolean> {
     const { rowCount } = await pool.query(
-      'DELETE FROM academico WHERE id_academico = $1',
+      "DELETE FROM academico WHERE id_academico = $1",
       [id]
     );
-    return rowCount !=null && rowCount > 0;
+    return rowCount != null && rowCount > 0;
   },
 
   // Búsqueda adicional (opcional)
@@ -96,5 +103,5 @@ export const AcademicoModel = {
       [`%${name}%`]
     );
     return rows;
-  }
+  },
 };

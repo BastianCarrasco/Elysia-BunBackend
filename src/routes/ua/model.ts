@@ -1,24 +1,28 @@
-import { t } from 'elysia';
-import { pool } from '../../lib/db';
+import { t } from "elysia";
+import { pool } from "../../lib/db";
 
 // Tipo TypeScript
 export interface UnidadAcademica {
-  id_unidad: number;  // SERIAL en PostgreSQL
+  id_unidad: number; // SERIAL en PostgreSQL
   nombre: string;
 }
 
 // Esquema de validación Elysia
 export const UnidadAcademicaSchema = t.Object({
   id_unidad: t.Number(),
-  nombre: t.String({ minLength: 3, maxLength: 100 })
+  nombre: t.String({ minLength: 3, maxLength: 100 }),
 });
 
-export const CreateUnidadAcademicaSchema = t.Omit(UnidadAcademicaSchema, ['id_unidad']);
+export const CreateUnidadAcademicaSchema = t.Omit(UnidadAcademicaSchema, [
+  "id_unidad",
+]);
 
 // Operaciones CRUD completas
 export const UnidadAcademicaModel = {
   // CREATE
-  async create(unidad: Omit<UnidadAcademica, 'id_unidad'>): Promise<UnidadAcademica> {
+  async create(
+    unidad: Omit<UnidadAcademica, "id_unidad">
+  ): Promise<UnidadAcademica> {
     const { rows } = await pool.query<UnidadAcademica>(
       `INSERT INTO unidadacademica (nombre) 
        VALUES ($1) 
@@ -31,7 +35,7 @@ export const UnidadAcademicaModel = {
   // READ (All)
   async getAll(): Promise<UnidadAcademica[]> {
     const { rows } = await pool.query<UnidadAcademica>(
-      'SELECT * FROM unidadacademica ORDER BY id_unidad'
+      "SELECT * FROM unidadacademica ORDER BY nombre"
     );
     return rows;
   },
@@ -39,7 +43,7 @@ export const UnidadAcademicaModel = {
   // READ (One)
   async getById(id: number): Promise<UnidadAcademica | null> {
     const { rows } = await pool.query<UnidadAcademica>(
-      'SELECT * FROM unidadacademica WHERE id_unidad = $1', 
+      "SELECT * FROM unidadacademica WHERE id_unidad = $1",
       [id]
     );
     return rows[0] || null;
@@ -47,18 +51,20 @@ export const UnidadAcademicaModel = {
 
   // UPDATE
   async update(
-    id: number, 
-    unidad: Partial<Omit<UnidadAcademica, 'id_unidad'>>
+    id: number,
+    unidad: Partial<Omit<UnidadAcademica, "id_unidad">>
   ): Promise<UnidadAcademica | null> {
-    const validUpdates = Object.entries(unidad).filter(([_, v]) => v !== undefined);
-    
+    const validUpdates = Object.entries(unidad).filter(
+      ([_, v]) => v !== undefined
+    );
+
     if (validUpdates.length === 0) {
-      throw new Error('No hay campos válidos para actualizar');
+      throw new Error("No hay campos válidos para actualizar");
     }
 
     const setClause = validUpdates
       .map(([key], i) => `${key} = $${i + 1}`)
-      .join(', ');
+      .join(", ");
 
     const values = validUpdates.map(([_, v]) => v);
 
@@ -76,7 +82,7 @@ export const UnidadAcademicaModel = {
   // DELETE
   async delete(id: number): Promise<boolean> {
     const { rowCount } = await pool.query(
-      'DELETE FROM unidadacademica WHERE id_unidad = $1',
+      "DELETE FROM unidadacademica WHERE id_unidad = $1",
       [id]
     );
     return rowCount != null && rowCount > 0;
@@ -91,5 +97,5 @@ export const UnidadAcademicaModel = {
       [`%${name}%`]
     );
     return rows;
-  }
+  },
 };

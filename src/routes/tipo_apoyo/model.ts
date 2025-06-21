@@ -30,9 +30,7 @@ export const TipoApoyoModel = {
 
   // READ (All)
   async getAll(): Promise<TipoApoyo[]> {
-    const { rows } = await pool.query(
-      "SELECT * FROM tipo_apoyo ORDER BY id_tipo_apoyo"
-    );
+    const { rows } = await pool.query("SELECT * FROM tipo_apoyo ORDER BY tipo");
     return rows;
   },
 

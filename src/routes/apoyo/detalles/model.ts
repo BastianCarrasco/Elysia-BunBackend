@@ -1,5 +1,5 @@
-import { t } from 'elysia';
-import { pool } from '../../../lib/db';
+import { t } from "elysia";
+import { pool } from "../../../lib/db";
 
 // Tipo TypeScript
 export interface Tag {
@@ -16,7 +16,7 @@ export const TagSchema = t.Object({
 // Operaciones CRUD
 export const TagModel = {
   // CREATE
-  async create(tagData: Omit<Tag, 'id_apoyo'>): Promise<Tag> {
+  async create(tagData: Omit<Tag, "id_apoyo">): Promise<Tag> {
     const { rows } = await pool.query(
       `INSERT INTO detalles_apoyo (tag) 
        VALUES ($1) 
@@ -28,14 +28,16 @@ export const TagModel = {
 
   // READ (All)
   async getAll(): Promise<Tag[]> {
-    const { rows } = await pool.query('SELECT * FROM detalles_apoyo ORDER BY id_apoyo');
+    const { rows } = await pool.query(
+      "SELECT * FROM detalles_apoyo ORDER BY tag"
+    );
     return rows;
   },
 
   // READ (One)
   async getById(id: number): Promise<Tag | null> {
     const { rows } = await pool.query(
-      'SELECT * FROM detalles_apoyo WHERE id_apoyo = $1', 
+      "SELECT * FROM detalles_apoyo WHERE id_apoyo = $1",
       [id]
     );
     return rows[0] || null;
@@ -43,8 +45,8 @@ export const TagModel = {
 
   // UPDATE
   async update(
-    id: number, 
-    tagData: Partial<Omit<Tag, 'id_apoyo'>>
+    id: number,
+    tagData: Partial<Omit<Tag, "id_apoyo">>
   ): Promise<Tag | null> {
     const fields = [];
     const values = [];
@@ -59,16 +61,16 @@ export const TagModel = {
     }
 
     if (fields.length === 0) {
-      throw new Error('No hay campos para actualizar');
+      throw new Error("No hay campos para actualizar");
     }
 
     const query = `
       UPDATE detalles_apoyo 
-      SET ${fields.join(', ')} 
+      SET ${fields.join(", ")} 
       WHERE id_apoyo = $${paramIndex} 
       RETURNING *
     `;
-    
+
     const { rows } = await pool.query(query, [...values, id]);
     return rows[0] || null;
   },
@@ -76,7 +78,7 @@ export const TagModel = {
   // DELETE
   async delete(id: number): Promise<boolean> {
     const { rowCount } = await pool.query(
-      'DELETE FROM detalles_apoyo WHERE id_apoyo = $1',
+      "DELETE FROM detalles_apoyo WHERE id_apoyo = $1",
       [id]
     );
     return rowCount != null && rowCount > 0;
@@ -90,5 +92,5 @@ export const TagModel = {
       [`%${tag}%`]
     );
     return rows;
-  }
+  },
 };

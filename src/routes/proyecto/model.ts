@@ -72,9 +72,7 @@ export const ProyectoModel = {
 
   // READ (All)
   async getAll(): Promise<Proyecto[]> {
-    const { rows } = await pool.query(
-      "SELECT * FROM proyecto ORDER BY id_proyecto"
-    );
+    const { rows } = await pool.query("SELECT * FROM proyecto ORDER BY nombre");
     return rows;
   },
 
