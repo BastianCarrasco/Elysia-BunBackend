@@ -2,7 +2,8 @@ import { Elysia, t } from "elysia";
 import {
   AcademicoModel,
   AcademicoSchema,
-  FotoAcademicoSchema, // Importa el nuevo esquema de FotoAcademico
+  AcademicoCreateSchema, // <--- Importa el nuevo esquema de creación
+  FotoAcademicoSchema,
 } from "./model"; // Asegúrate de que el path sea correcto a tu archivo model.ts
 
 export const academicosRoutes = new Elysia({ prefix: "/academicos" })
@@ -49,6 +50,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     }
   )
 
+  // Obtener todas las fotos de todos los académicos (ruta global)
   .get(
     "/fotos-global", // Puedes elegir un path diferente, por ejemplo, '/all-fotos'
     async () => {
@@ -77,6 +79,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
         set.status = 201;
         return nuevoAcademico;
       } catch (error) {
+        console.error("Error al insertar académico:", error);
         set.status = 400;
         return {
           error: "Error al insertar académico",
@@ -85,7 +88,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
       }
     },
     {
-      body: t.Omit(AcademicoSchema, ["id_academico"]),
+      body: AcademicoCreateSchema, // <--- ¡CAMBIO AQUÍ! Usamos el esquema específico de creación
       detail: {
         tags: ["Académicos"],
         description: "Crea un nuevo registro académico",
@@ -102,6 +105,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     "/:id",
     async ({ params: { id }, body, set }) => {
       try {
+        // En la actualización, el 'id_unidad' es parte de AcademicoSchema y debe ser enviado
         const actualizado = await AcademicoModel.update(Number(id), body);
         if (!actualizado) {
           set.status = 404;
@@ -118,7 +122,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     },
     {
       params: t.Object({ id: t.Numeric() }),
-      body: t.Omit(AcademicoSchema, ["id_academico"]),
+      body: t.Omit(AcademicoSchema, ["id_academico"]), // Esto está bien para PUT ya que esperamos todos los campos (excepto id_academico)
       detail: {
         tags: ["Académicos"],
         description: "Actualiza completamente un académico",
@@ -152,7 +156,9 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     },
     {
       params: t.Object({ id: t.Numeric() }),
-      body: t.Partial(t.Omit(AcademicoSchema, ["id_academico"])),
+      // t.Partial(AcademicoSchema) es más simple y correcto aquí.
+      // Omitir id_academico está implícito porque no se espera en el body de un PATCH.
+      body: t.Partial(AcademicoSchema), // <--- Considerar este cambio también para simplicidad
       detail: {
         tags: ["Académicos"],
         description: "Actualiza parcialmente un académico",
@@ -294,10 +300,12 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
       try {
         const nuevaFoto = await AcademicoModel.createFoto({
           id_academico,
-          // Asegúrate de que 'body' contenga 'foto' (Buffer o null) y 'link' (string o null)
-          // Usamos 'body' directamente, que ya fue validado por Elysia en 'body: FotoAcademicoSchema.omit...'
-          foto: body.foto || null,
-          link: body.link || null,
+          // 'body' ya ha sido validado por Elysia, así que 'body.foto' y 'body.link'
+          // son del tipo correcto o undefined/null según el esquema.
+          // No es estrictamente necesario el '|| null' aquí si los campos son t.Optional
+          // y la base de datos permite nulls.
+          foto: body.foto,
+          link: body.link,
         });
         set.status = 201;
         return nuevaFoto;
@@ -312,7 +320,8 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     },
     {
       params: t.Object({ id: t.Numeric() }),
-      // t.Partial para permitir que uno de los campos (foto o link) sea opcional
+      // t.Partial(t.Omit(FotoAcademicoSchema, ["id_academico"]))
+      // es correcto para permitir que 'foto' o 'link' sean opcionales y el 'id_academico' lo tomamos del path.
       body: t.Partial(t.Omit(FotoAcademicoSchema, ["id_academico"])),
       detail: {
         tags: ["Fotos de Académicos"],
@@ -367,6 +376,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
         id: t.Numeric(),
         fotoId: t.Numeric(),
       }),
+      // El body solo debe contener 'foto' y 'link'
       body: t.Partial(
         t.Omit(FotoAcademicoSchema, ["id_academico", "id_imagen"])
       ),

@@ -8,6 +8,7 @@ export interface Academico {
   email: string;
   a_materno: string;
   a_paterno: string;
+  id_unidad: number; // Añadimos id_unidad aquí
 }
 
 // Tipo TypeScript para FotoAcademico
@@ -18,13 +19,24 @@ export interface FotoAcademico {
   link: string | null;
 }
 
-// Esquema de validación Elysia para Academico
+// Esquema de validación Elysia para Academico (para cuando lo recibes del cliente)
+// id_academico no se incluye en el esquema para creación, pero sí para validación de lectura/actualización
 export const AcademicoSchema = t.Object({
   id_academico: t.Number(),
   nombre: t.String(),
   email: t.String({ format: "email" }),
   a_materno: t.String(),
   a_paterno: t.String(),
+  id_unidad: t.Number(), // Añadimos id_unidad al esquema de validación
+});
+
+// Esquema de validación Elysia para la creación de Academico (sin id_academico)
+export const AcademicoCreateSchema = t.Object({
+  nombre: t.String(),
+  email: t.String({ format: "email" }),
+  a_materno: t.String(),
+  a_paterno: t.String(),
+  id_unidad: t.Number(), // Añadimos id_unidad al esquema de creación
 });
 
 // Esquema de validación Elysia para FotoAcademico (sin id_imagen para la creación)
@@ -41,14 +53,15 @@ export const AcademicoModel = {
   // CREATE Academico
   async create(academico: Omit<Academico, "id_academico">): Promise<Academico> {
     const { rows } = await pool.query(
-      `INSERT INTO academico (nombre, email, a_materno, a_paterno)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO academico (nombre, email, a_materno, a_paterno, id_unidad)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
       [
         academico.nombre,
         academico.email,
         academico.a_materno,
         academico.a_paterno,
+        academico.id_unidad, // Incluimos id_unidad aquí
       ]
     );
     return rows[0];
@@ -80,17 +93,36 @@ export const AcademicoModel = {
     const values = [];
     let paramIndex = 1;
 
-    for (const [key, value] of Object.entries(academico)) {
-      // Asegurarse de que el valor no sea undefined (o null si no quieres actualizar a null)
-      if (value !== undefined) {
-        fields.push(`${key} = $${paramIndex}`);
-        values.push(value);
-        paramIndex++;
-      }
+    // Iterar sobre las propiedades del objeto academico para construir la consulta de actualización
+    // Asegurarse de que el valor no sea undefined (o null si no quieres actualizar a null)
+    if (academico.nombre !== undefined) {
+      fields.push(`nombre = $${paramIndex}`);
+      values.push(academico.nombre);
+      paramIndex++;
+    }
+    if (academico.email !== undefined) {
+      fields.push(`email = $${paramIndex}`);
+      values.push(academico.email);
+      paramIndex++;
+    }
+    if (academico.a_materno !== undefined) {
+      fields.push(`a_materno = $${paramIndex}`);
+      values.push(academico.a_materno);
+      paramIndex++;
+    }
+    if (academico.a_paterno !== undefined) {
+      fields.push(`a_paterno = $${paramIndex}`);
+      values.push(academico.a_paterno);
+      paramIndex++;
+    }
+    if (academico.id_unidad !== undefined) {
+      fields.push(`id_unidad = $${paramIndex}`);
+      values.push(academico.id_unidad);
+      paramIndex++;
     }
 
     if (fields.length === 0) {
-      // Devolver el académico existente si no hay campos para actualizar
+      // Si no hay campos para actualizar, devolver el académico existente
       return this.getById(id);
     }
 
