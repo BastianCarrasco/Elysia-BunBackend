@@ -105,7 +105,6 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     "/:id",
     async ({ params: { id }, body, set }) => {
       try {
-        // En la actualización, el 'id_unidad' es parte de AcademicoSchema y debe ser enviado
         const actualizado = await AcademicoModel.update(Number(id), body);
         if (!actualizado) {
           set.status = 404;
@@ -122,7 +121,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     },
     {
       params: t.Object({ id: t.Numeric() }),
-      body: t.Omit(AcademicoSchema, ["id_academico"]), // Esto está bien para PUT ya que esperamos todos los campos (excepto id_academico)
+      body: t.Omit(AcademicoSchema, ["id_academico"]),
       detail: {
         tags: ["Académicos"],
         description: "Actualiza completamente un académico",
@@ -156,9 +155,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     },
     {
       params: t.Object({ id: t.Numeric() }),
-      // t.Partial(AcademicoSchema) es más simple y correcto aquí.
-      // Omitir id_academico está implícito porque no se espera en el body de un PATCH.
-      body: t.Partial(AcademicoSchema), // <--- Considerar este cambio también para simplicidad
+      body: t.Partial(AcademicoSchema),
       detail: {
         tags: ["Académicos"],
         description: "Actualiza parcialmente un académico",
@@ -320,8 +317,6 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     },
     {
       params: t.Object({ id: t.Numeric() }),
-      // t.Partial(t.Omit(FotoAcademicoSchema, ["id_academico"]))
-      // es correcto para permitir que 'foto' o 'link' sean opcionales y el 'id_academico' lo tomamos del path.
       body: t.Partial(t.Omit(FotoAcademicoSchema, ["id_academico"])),
       detail: {
         tags: ["Fotos de Académicos"],
@@ -376,7 +371,6 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
         id: t.Numeric(),
         fotoId: t.Numeric(),
       }),
-      // El body solo debe contener 'foto' y 'link'
       body: t.Partial(
         t.Omit(FotoAcademicoSchema, ["id_academico", "id_imagen"])
       ),
@@ -397,7 +391,7 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
     "/:id/fotos/:fotoId",
     async ({ params: { id, fotoId }, set }) => {
       const id_academico = Number(id);
-      const id_imagen = Number(fotoId);
+      const id_imagen_a_eliminar = Number(fotoId); // <-- CAMBIO DE NOMBRE DE VARIABLE
 
       const academicoExiste = await AcademicoModel.getById(id_academico);
       if (!academicoExiste) {
@@ -405,14 +399,16 @@ export const academicosRoutes = new Elysia({ prefix: "/academicos" })
         return { error: "Académico no encontrado" };
       }
 
-      const fotoExistente = await AcademicoModel.getFotoById(id_imagen);
+      const fotoExistente = await AcademicoModel.getFotoById(
+        id_imagen_a_eliminar
+      ); // <-- Usar la nueva variable
       // Verificamos que la foto exista y pertenezca al académico correcto
       if (!fotoExistente || fotoExistente.id_academico !== id_academico) {
         set.status = 404;
         return { error: "Foto no encontrada para este académico" };
       }
 
-      const eliminado = await AcademicoModel.deleteFoto(id_imagen);
+      const eliminado = await AcademicoModel.deleteFoto(id_imagen_a_eliminar); // <-- Usar la nueva variable
       if (!eliminado) {
         // Esto no debería ocurrir si la fotoExistente fue encontrada y validada
         set.status = 500;

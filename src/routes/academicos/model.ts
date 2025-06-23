@@ -8,7 +8,7 @@ export interface Academico {
   email: string;
   a_materno: string;
   a_paterno: string;
-  id_unidad: number; // Añadimos id_unidad aquí
+  id_unidad: number | null; // Cambiado para aceptar null
 }
 
 // Tipo TypeScript para FotoAcademico
@@ -27,7 +27,7 @@ export const AcademicoSchema = t.Object({
   email: t.String({ format: "email" }),
   a_materno: t.String(),
   a_paterno: t.String(),
-  id_unidad: t.Number(), // Añadimos id_unidad al esquema de validación
+  id_unidad: t.Union([t.Number(), t.Null()]), // Acepta número o null
 });
 
 // Esquema de validación Elysia para la creación de Academico (sin id_academico)
@@ -36,12 +36,16 @@ export const AcademicoCreateSchema = t.Object({
   email: t.String({ format: "email" }),
   a_materno: t.String(),
   a_paterno: t.String(),
-  id_unidad: t.Number(), // Añadimos id_unidad al esquema de creación
+  id_unidad: t.Optional(t.Union([t.Number(), t.Null()])), // Opcional y acepta número o null
 });
 
-// Esquema de validación Elysia para FotoAcademico (sin id_imagen para la creación)
+// Esquema de validación Elysia para FotoAcademico
+// Para la creación, los campos 'foto' y 'link' serán opcionales y podrían ser undefined
+// si no se proporcionan, pero la DB espera null. El modelo debe manejarlo.
 export const FotoAcademicoSchema = t.Object({
   id_academico: t.Number(),
+  // t.Optional significa que la propiedad puede no estar presente, resultando en `undefined`.
+  // Si la DB espera `null` para un valor no proporcionado, la lógica en `createFoto` lo manejará.
   foto: t.Optional(t.Any()), // Puedes especificar un tipo más restrictivo si sabes cómo vas a manejar la foto (e.g., t.String() para base64)
   link: t.Optional(t.String({ format: "uri" })),
 });
@@ -51,17 +55,23 @@ export const AcademicoModel = {
   // === Operaciones CRUD para Academico ===
 
   // CREATE Academico
-  async create(academico: Omit<Academico, "id_academico">): Promise<Academico> {
+  async create(academico: {
+    nombre: string;
+    email: string;
+    a_materno: string;
+    a_paterno: string;
+    id_unidad?: number | null; // Asegura que id_unidad pueda ser opcional o null
+  }): Promise<Academico> {
     const { rows } = await pool.query(
       `INSERT INTO academico (nombre, email, a_materno, a_paterno, id_unidad)
        VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
+       RETURNING *`, // RETURNING * devolverá todos los campos, incluyendo el id_academico generado
       [
         academico.nombre,
         academico.email,
         academico.a_materno,
         academico.a_paterno,
-        academico.id_unidad, // Incluimos id_unidad aquí
+        academico.id_unidad === undefined ? null : academico.id_unidad, // Convertir undefined a null
       ]
     );
     return rows[0];
@@ -94,7 +104,6 @@ export const AcademicoModel = {
     let paramIndex = 1;
 
     // Iterar sobre las propiedades del objeto academico para construir la consulta de actualización
-    // Asegurarse de que el valor no sea undefined (o null si no quieres actualizar a null)
     if (academico.nombre !== undefined) {
       fields.push(`nombre = $${paramIndex}`);
       values.push(academico.nombre);
@@ -115,6 +124,9 @@ export const AcademicoModel = {
       values.push(academico.a_paterno);
       paramIndex++;
     }
+    // Permitir la actualización de id_unidad a un número o a null
+    // Es importante manejar `undefined` para que si no se envía la propiedad, no se intente actualizarla
+    // y si se envía `null`, se actualice a `null`.
     if (academico.id_unidad !== undefined) {
       fields.push(`id_unidad = $${paramIndex}`);
       values.push(academico.id_unidad);
@@ -159,10 +171,19 @@ export const AcademicoModel = {
   // === Operaciones CRUD para FotoAcademico ===
 
   // CREATE FotoAcademico
-  async createFoto(
-    fotoData: Omit<FotoAcademico, "id_imagen">
-  ): Promise<FotoAcademico> {
-    const { id_academico, foto, link } = fotoData;
+  // La entrada `fotoData` ahora solo incluye `id_academico`, `foto` y `link`
+  // Los campos `foto` y `link` pueden ser undefined si no se proporcionan en el cuerpo de la petición.
+  // La base de datos espera `null`.
+  async createFoto(fotoData: {
+    id_academico: number;
+    foto?: any; // any, Buffer, string, lo que uses para el archivo
+    link?: string;
+  }): Promise<FotoAcademico> {
+    const { id_academico } = fotoData;
+    // Asegurarse de que `undefined` se convierta a `null` para la base de datos.
+    const foto = fotoData.foto === undefined ? null : fotoData.foto;
+    const link = fotoData.link === undefined ? null : fotoData.link;
+
     const { rows } = await pool.query(
       `INSERT INTO foto_academico (id_academico, foto, link)
        VALUES ($1, $2, $3)
@@ -208,14 +229,16 @@ export const AcademicoModel = {
     let paramIndex = 1;
 
     // Solo actualizamos 'foto' y 'link'
+    // Convertir `undefined` a `null` para la DB si se envía la propiedad pero con valor undefined (raro pero posible)
+    // O si quieres que un `undefined` explícito resetee el campo a `null`.
     if (fotoData.foto !== undefined) {
       fields.push(`foto = $${paramIndex}`);
-      values.push(fotoData.foto);
+      values.push(fotoData.foto === undefined ? null : fotoData.foto); // Asegura null para undefined
       paramIndex++;
     }
     if (fotoData.link !== undefined) {
       fields.push(`link = $${paramIndex}`);
-      values.push(fotoData.link);
+      values.push(fotoData.link === undefined ? null : fotoData.link); // Asegura null para undefined
       paramIndex++;
     }
 
@@ -236,11 +259,13 @@ export const AcademicoModel = {
   },
 
   // DELETE FotoAcademico
-  async deleteFoto(id_imagen: number): Promise<boolean> {
+  async deleteFoto(id: number): Promise<boolean> {
+    // CAMBIO: El parámetro aquí es `id`, no `id_imagen` en el nombre del parámetro,
+    // pero se usa para buscar por `id_imagen`. Para claridad, renombro `id` a `id_imagen`.
     const { rowCount } = await pool.query(
       "DELETE FROM foto_academico WHERE id_imagen = $1",
-      [id_imagen]
-    );
+      [id]
+    ); // Usa el 'id' pasado
     return rowCount != null && rowCount > 0;
   },
 };
