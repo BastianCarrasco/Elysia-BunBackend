@@ -8,39 +8,37 @@ export interface AcademicoProyecto {
 
 export interface ProyectoConAcademicos {
   nombre: string;
-  monto: number;
+  monto: number | null; // Cambiado a permitir null directamente
   fecha_postulacion: string | Date | null;
-  comentarios: string;
-  unidad: number;
-  id_tematica: number;
-  id_estatus: number;
-  tipo_convocatoria: number;
-  inst_conv: number;
-  detalle_apoyo: string;
-  apoyo: number;
-  convocatoria: string;
+  comentarios: string | null; // Cambiado a permitir null directamente
+  unidad: number | null; // Cambiado a permitir null directamente
+  id_tematica: number | null; // Cambiado a permitir null directamente
+  id_estatus: number | null; // Cambiado a permitir null directamente
+  tipo_convocatoria: number | null; // Cambiado a permitir null directamente
+  inst_conv: number | null; // Cambiado a permitir null directamente
+  detalle_apoyo: string | null; // Cambiado a permitir null directamente
+  apoyo: number | null; // Cambiado a permitir null directamente
+  convocatoria: string | null; // Cambiado a permitir null directamente
   academicos: AcademicoProyecto[];
 }
 
-// ... (imports y interfaces)
-
 export const ProyectoAcademicoSchema = t.Object({
   nombre: t.String(),
-  monto: t.Union([t.Number(), t.Null()]), // También podría ser null al inicio
+  monto: t.Union([t.Number(), t.Null()]),
   fecha_postulacion: t.Union([
     t.Date(),
     t.String({ format: "date-time" }),
     t.Null(),
   ]),
-  comentarios: t.Union([t.String(), t.Null()]), // Si comments también puede ser null/vacío
+  comentarios: t.Union([t.String(), t.Null()]),
   unidad: t.Union([t.Number(), t.Null()]),
   id_tematica: t.Union([t.Number(), t.Null()]),
   id_estatus: t.Union([t.Number(), t.Null()]),
   tipo_convocatoria: t.Union([t.Number(), t.Null()]),
   inst_conv: t.Union([t.Number(), t.Null()]),
-  detalle_apoyo: t.Union([t.String(), t.Null()]), // Si detalle_apoyo también puede ser null/vacío
+  detalle_apoyo: t.Union([t.String(), t.Null()]),
   apoyo: t.Union([t.Number(), t.Null()]),
-  convocatoria: t.Union([t.String(), t.Null()]), // Si convocatoria también puede ser null/vacío
+  convocatoria: t.Union([t.String(), t.Null()]),
   academicos: t.Array(
     t.Object({
       id: t.Number(),
@@ -51,20 +49,21 @@ export const ProyectoAcademicoSchema = t.Object({
 
 export const ModelAcademicoXProyecto = {
   async crearProyectoConAcademicos(data: ProyectoConAcademicos) {
-    // Aplicar valores por defecto si el frontend envió null
-    const nombre = data.nombre; // nombre es requerido, no debería ser null
-    const monto = data.monto ?? 1; // Usar 1 como default si es null (o 0 si prefieres)
-    const fecha_postulacion = data.fecha_postulacion; // null se mantiene null
-    const comentarios = data.comentarios ?? ""; // Usar "" como default si es null
-    const unidad = data.unidad ?? 1; // Usar 1 como default si es null
-    const id_tematica = data.id_tematica ?? 1; // Usar 1 como default si es null
-    const id_estatus = data.id_estatus ?? 1; // Usar 1 como default si es null
-    const tipo_convocatoria = data.tipo_convocatoria ?? 1; // Usar 1 como default si es null
-    const inst_conv = data.inst_conv ?? 1; // Usar 1 como default si es null
-    const detalle_apoyo = data.detalle_apoyo ?? ""; // Usar "" como default si es null
-    const apoyo = data.apoyo ?? 1; // Usar 1 como default si es null
-    const convocatoria = data.convocatoria ?? ""; // Usar "" como default si es null
-    const academicos = data.academicos; // Requerido, no debería ser null
+    // Si el frontend envía null, simplemente lo pasamos como null.
+    // No hay necesidad de un valor "default" si el default es null.
+    const nombre = data.nombre;
+    const monto = data.monto;
+    const fecha_postulacion = data.fecha_postulacion;
+    const comentarios = data.comentarios;
+    const unidad = data.unidad;
+    const id_tematica = data.id_tematica;
+    const id_estatus = data.id_estatus;
+    const tipo_convocatoria = data.tipo_convocatoria;
+    const inst_conv = data.inst_conv;
+    const detalle_apoyo = data.detalle_apoyo;
+    const apoyo = data.apoyo;
+    const convocatoria = data.convocatoria;
+    const academicos = data.academicos;
 
     try {
       const result = await pool.query(
