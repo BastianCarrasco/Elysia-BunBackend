@@ -21,6 +21,7 @@ import { tematicaRoutes } from "./tematica/CRUD";
 import { tipoApoyoRoutes } from "./tipo_apoyo/CRUD";
 import { tipoConvoRoutes } from "./tipo_convo/CRUD";
 import { unidadesRoutes } from "./ua/CRUD";
+import { estudianteRoutes } from "./estudiantes/CRUD"; // Importa las rutas de estudiantes
 
 export const routes = new Elysia()
   // Uso de rutas ordenado alfabéticamente
@@ -41,4 +42,5 @@ export const routes = new Elysia()
   .use(tematicaRoutes)
   .use(tipoApoyoRoutes)
   .use(tipoConvoRoutes)
-  .use(unidadesRoutes);
+  .use(unidadesRoutes)
+  .use(estudianteRoutes);
