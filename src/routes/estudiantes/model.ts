@@ -28,7 +28,7 @@ export const ProyectoEstudianteModel = {
          E.a_paterno
        FROM
          PROYECTO_ESTUDIANTE AS PE
-         JOIN ESTUDIANTES AS E ON E.ID_ESTUDIANTE = PE.ID_ESTUDIANTE
+         JOIN ESTUDIANTES AS E ON E.ID_ESTUDIANTES = PE.ID_ESTUDIANTE
        WHERE
          ID_PROYECTO = $1`,
       [id_proyecto]
